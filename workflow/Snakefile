@@ -1,0 +1,41 @@
+configfile: "config/config.yaml"
+
+rule all:
+    input:
+        "results/processed/autosomal.pgen",
+        "results/processed/autosomal.pvar",
+        "results/processed/autosomal.psam"
+
+
+rule preprocess:
+    input:
+        "data/autosomal.csv"
+    output:
+        tped="results/processed/autosomal.tped",
+        tfam="results/processed/autosomal.tfam",
+        qc="results/processed/autosomal_qc.json"
+    params:
+        sample_id=config["sample_id"],
+        sex=config["sex"]
+    shell:
+        """
+        python scripts/preprocess_autosomal.py \
+            {input} results/processed {params.sample_id} {params.sex}
+        """
+
+
+rule convert_plink:
+    input:
+        tped="results/processed/autosomal.tped",
+        tfam="results/processed/autosomal.tfam"
+    output:
+        pgen="results/processed/autosomal.pgen",
+        pvar="results/processed/autosomal.pvar",
+        psam="results/processed/autosomal.psam"
+    shell:
+        """
+        plink2 \
+            --tfile results/processed/autosomal \
+            --make-pgen \
+            --out results/processed/autosomal
+        """

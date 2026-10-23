@@ -1,0 +1,24 @@
+# Personal genetic data
+/data/
+
+# Reference datasets
+/reference/
+
+# Analysis outputs and private reports
+/results/
+/reports/
+
+# Conda / Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Snakemake
+.snakemake/
+
+# OS / Editor
+.DS_Store
+.vscode/
+
+note.md
