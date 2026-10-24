@@ -7,7 +7,11 @@ rule all:
         "results/processed/autosomal.pvar",
         "results/processed/autosomal.psam",
         "results/qc/alleles_compatibility_HO.json",
-        "results/qc/alleles_1240K.json"
+        "results/qc/alleles_1240K.json",
+	"results/harmonized/compatibility_HO_sample_codes.txt",
+	"results/harmonized/1240K_sample_codes.txt",
+	"results/qc/harmonization_compatibility_HO.json",
+	"results/qc/harmonization_1240K.json"
 
 
 
@@ -55,4 +59,18 @@ rule check_alleles:
         """
         python scripts/check_alleles.py \
             {input.tped} {input.snp} {output}
+        """
+
+
+rule harmonize:
+    input:
+        tped="results/processed/autosomal.tped",
+        snp="reference/aadr/v66.p1_{panel}.aadr.patch.PUB.snp"
+    output:
+        codes="results/harmonized/{panel}_sample_codes.txt",
+        qc="results/qc/harmonization_{panel}.json"
+    shell:
+        """
+        python scripts/harmonize_genotypes.py \
+            {input.tped} {input.snp} {output.codes} {output.qc}
         """
