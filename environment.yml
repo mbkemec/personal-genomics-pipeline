@@ -1,11 +1,11 @@
 name: personal-genomics
-
 channels:
-  - conda-forge
+  - defaults
   - bioconda
-  - nodefaults
-
+  - conda-forge
 dependencies:
-  - python=3.11.17
-  - snakemake=9.27.1
-  - plink2=2.0.0a.7.8
+  - snakemake
+  - python=3.11
+  - plink2
+  - eigensoft=9.0.0
+prefix: /home/barkinkemec/miniconda3/envs/personal-genomics
