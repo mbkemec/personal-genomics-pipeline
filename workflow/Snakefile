@@ -1,10 +1,14 @@
 configfile: "config/config.yaml"
 
+
 rule all:
     input:
         "results/processed/autosomal.pgen",
         "results/processed/autosomal.pvar",
-        "results/processed/autosomal.psam"
+        "results/processed/autosomal.psam",
+        "results/qc/alleles_compatibility_HO.json",
+        "results/qc/alleles_1240K.json"
+
 
 
 rule preprocess:
@@ -38,4 +42,17 @@ rule convert_plink:
             --tfile results/processed/autosomal \
             --make-pgen \
             --out results/processed/autosomal
+        """
+
+
+rule check_alleles:
+    input:
+        tped="results/processed/autosomal.tped",
+        snp="reference/aadr/v66.p1_{panel}.aadr.patch.PUB.snp"
+    output:
+        "results/qc/alleles_{panel}.json"
+    shell:
+        """
+        python scripts/check_alleles.py \
+            {input.tped} {input.snp} {output}
         """
