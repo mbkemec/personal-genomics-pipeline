@@ -11,7 +11,9 @@ rule all:
 	"results/harmonized/compatibility_HO_sample_codes.txt",
 	"results/harmonized/1240K_sample_codes.txt",
 	"results/qc/harmonization_compatibility_HO.json",
-	"results/qc/harmonization_1240K.json"
+	"results/qc/harmonization_1240K.json",
+        "results/reference/modern_samples.txt",
+        "results/reference/modern_selection.json"
 
 
 
@@ -73,4 +75,22 @@ rule harmonize:
         """
         python scripts/harmonize_genotypes.py \
             {input.tped} {input.snp} {output.codes} {output.qc}
+        """
+
+rule select_modern_samples:
+    input:
+        config="config/reference_populations.yaml",
+        ind="reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.ind",
+        anno="reference/aadr/v66.p1_compatibility_HO.aadr.PUB.anno"
+    output:
+        ids="results/reference/modern_samples.txt",
+        report="results/reference/modern_selection.json"
+    shell:
+        """
+        python scripts/select_modern_samples.py \
+            --config {input.config} \
+            --ind {input.ind} \
+            --anno {input.anno} \
+            --output-ids {output.ids} \
+            --output-report {output.report}
         """

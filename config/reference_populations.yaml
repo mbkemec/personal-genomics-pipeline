@@ -1,0 +1,131 @@
+
+# AADR v66.p1 HumanOrigins
+# Population labels are preserved exactly as in AADR.
+# Geographic categories are analysis-defined, not ancestry assignments.
+
+reference_panel: compatibility_HO
+
+selection:
+  assessment: Pass
+  date_bp: "0"
+  data_type: HumanOrigins
+  genetic_id_suffix: ".HO"
+  exclude_label_patterns:
+    - QCremove
+    - "-Dup"
+    - "-o"
+
+  # Keep all eligible individuals initially.
+  max_individuals_per_population: null
+
+regions:
+  Anatolia:
+    - Turkish
+    - Turkish_Trabzon
+    - Kurd
+    - Kurd_WGA
+    - Ezid
+    - Armenian_Hemsheni
+    - Jew_Turkish
+
+  Caucasus:
+    - Abazin
+    - Abkhasian
+    - Adygei
+    - Armenian
+    - Avar
+    - Avar-1
+    - Avar-2
+    - Azeri
+    - Azeri_Dagestan
+    - Balkar
+    - Chechen
+    - Circassian
+    - Darginian
+    - Georgian
+    - Georgian_WGA
+    - Ingushian
+    - Kabardinian
+    - Karachai
+    - Kumyk
+    - Kumyk-1
+    - Kumyk-2
+    - Lak
+    - Lezgin
+    - Nogai_Astrakhan
+    - Nogai_Karachay_Cherkessia
+    - Nogai_Stavropol
+    - Ossetian
+    - Jew_Georgian
+
+  Iran_Mesopotamia:
+    - Assyrian
+    - Iranian
+    - Iranian_Bandari
+    - Iranian_Non_Zoroastrian
+    - Iranian_Zoroastrian
+    - Jew_Iranian
+    - Jew_Iraqi
+
+  Levant:
+    - BedouinA
+    - BedouinB
+    - BedouinB_1-1
+    - BedouinB_2-2
+    - Druze
+    - Jordanian
+    - Lebanese
+    - Lebanese_Christian
+    - Lebanese_Muslim
+    - Palestinian
+    - Syrian
+
+  Balkans_Aegean:
+    - Albanian
+    - Bosnian_Serb
+    - Bulgarian
+    - Croatian
+    - Croatian_Serb
+    - Cypriot
+    - Cypriot-1
+    - Cypriot-2
+    - Greek
+    - Greek_1-1
+    - Greek_WGA
+    - Montenegrin_Serb
+    - North_Macedonian_Serb
+    - Romanian
+    - Serbian_Serb
+    - Moldavian
+    - Gagauz
+    - Hungarian
+
+  Southern_Europe:
+    - Italian_North
+    - Italian_Central
+    - Italian_South
+    - Sicilian
+
+  Central_Asia:
+    - Kazakh
+    - Kazakh_China
+    - Kyrgyz_China
+    - Kyrgyz_Kyrgyzstan
+    - Kyrgyz_Tajikistan
+    - Tajik
+    - Tajik_Pamiri
+    - Turkmen
+    - Uyghur
+    - Uzbek
+    - Uzbek-1
+    - Uzbek-2
+
+  Eastern_Europe_Steppe:
+    - Bashkir
+    - Chuvash
+    - Kalmyk
+    - Tatar_Kazan
+    - Tatar_Mishar
+
+  North_Africa:
+    - Egyptian
