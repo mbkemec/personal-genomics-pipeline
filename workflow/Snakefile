@@ -13,8 +13,8 @@ rule all:
 	"results/qc/harmonization_compatibility_HO.json",
 	"results/qc/harmonization_1240K.json",
         "results/reference/modern_samples.txt",
-        "results/reference/modern_selection.json"
-
+        "results/reference/modern_selection.json",
+	"results/reference/modern_filter.ind"
 
 
 rule preprocess:
@@ -93,4 +93,18 @@ rule select_modern_samples:
             --anno {input.anno} \
             --output-ids {output.ids} \
             --output-report {output.report}
+        """
+
+rule prepare_reference_ind:
+    input:
+        ind="reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.ind",
+        selected="results/reference/modern_samples.txt"
+    output:
+        "results/reference/modern_filter.ind"
+    shell:
+        """
+        python scripts/prepare_reference_ind.py \
+            --ind {input.ind} \
+            --selected {input.selected} \
+            --output {output}
         """
