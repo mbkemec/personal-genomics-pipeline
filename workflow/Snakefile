@@ -14,8 +14,12 @@ rule all:
 	"results/qc/harmonization_1240K.json",
         "results/reference/modern_samples.txt",
         "results/reference/modern_selection.json",
-	"results/reference/modern_filter.ind"
-
+	"results/reference/modern_filter.ind",
+	"results/reference/modern.geno",
+	"results/reference/modern.snp",
+	"results/reference/modern.ind",
+	"reports/modern_reference_qc.json",
+	
 
 rule preprocess:
     input:
@@ -106,5 +110,45 @@ rule prepare_reference_ind:
         python scripts/prepare_reference_ind.py \
             --ind {input.ind} \
             --selected {input.selected} \
+            --output {output}
+        """
+
+rule extract_modern_reference:
+    input:
+        geno="reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.geno",
+        snp="reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.snp",
+        ind="results/reference/modern_filter.ind",
+	par="config/convertf_modern.par"
+    output:
+        geno="results/reference/modern.geno",
+        snp="results/reference/modern.snp",
+        ind="results/reference/modern.ind"
+    log:
+        "logs/convertf_modern.log"
+    shell:
+        """
+        mkdir -p logs
+        convertf -p {input.par} > {log} 2>&1
+        """
+
+rule validate_modern_reference:
+    input:
+        original_ind="reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.ind",
+        original_snp="reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.snp",
+        selected="results/reference/modern_samples.txt",
+        extracted_ind="results/reference/modern.ind",
+        extracted_snp="results/reference/modern.snp",
+        extracted_geno="results/reference/modern.geno"
+    output:
+        "reports/modern_reference_qc.json"
+    shell:
+        """
+        python scripts/validate_modern_reference.py \
+            --original-ind {input.original_ind} \
+            --selected {input.selected} \
+            --extracted-ind {input.extracted_ind} \
+            --original-snp {input.original_snp} \
+            --extracted-snp {input.extracted_snp} \
+            --extracted-geno {input.extracted_geno} \
             --output {output}
         """

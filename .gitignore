@@ -3,7 +3,7 @@
 
 # Reference datasets
 /reference/
-
+/logs/
 # Analysis outputs and private reports
 /results/
 /reports/

@@ -1,0 +1,10 @@
+genotypename: reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.geno
+snpname: reference/aadr/v66.p1_compatibility_HO.aadr.patch.PUB.snp
+indivname: results/reference/modern_filter.ind
+
+outputformat: PACKEDANCESTRYMAP
+genooutfilename: results/reference/modern.geno
+snpoutfilename: results/reference/modern.snp
+indoutfilename: results/reference/modern.ind
+
+hashcheck: NO
