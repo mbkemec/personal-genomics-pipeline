@@ -26,7 +26,9 @@ rule all:
 	"reports/reference_missingness_qc.json",
 	"results/reference/modern_qc.bed",
 	"results/reference/modern_qc.bim",
-	"results/reference/modern_qc.fam"
+	"results/reference/modern_qc.fam",
+	"results/reference/modern_ld.prune.in",
+	"results/reference/modern_ld.prune.out"
 
 rule preprocess:
     input:
@@ -227,5 +229,24 @@ rule filter_reference_missingness:
             --geno 0.05 \
             --make-bed \
             --out results/reference/modern_qc \
+            > {log} 2>&1
+        """
+
+rule prune_reference_ld:
+    input:
+        bed="results/reference/modern_qc.bed",
+        bim="results/reference/modern_qc.bim",
+        fam="results/reference/modern_qc.fam"
+    output:
+        prune_in="results/reference/modern_ld.prune.in",
+        prune_out="results/reference/modern_ld.prune.out"
+    log:
+        "logs/reference_ld_pruning.log"
+    shell:
+        """
+        plink2 \
+            --bfile results/reference/modern_qc \
+            --indep-pairwise 200 50 0.2 \
+            --out results/reference/modern_ld \
             > {log} 2>&1
         """
