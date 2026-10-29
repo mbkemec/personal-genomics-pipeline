@@ -19,7 +19,14 @@ rule all:
 	"results/reference/modern.snp",
 	"results/reference/modern.ind",
 	"reports/modern_reference_qc.json",
-	
+	"results/reference/modern_plink.bed",
+	"results/reference/modern_plink.bim",
+	"results/reference/modern_plink.fam",
+	"results/reference/modern_missingness.vmiss",	
+	"reports/reference_missingness_qc.json",
+	"results/reference/modern_qc.bed",
+	"results/reference/modern_qc.bim",
+	"results/reference/modern_qc.fam"
 
 rule preprocess:
     input:
@@ -151,4 +158,74 @@ rule validate_modern_reference:
             --extracted-snp {input.extracted_snp} \
             --extracted-geno {input.extracted_geno} \
             --output {output}
+        """
+
+rule convert_reference_plink:
+    input:
+        geno="results/reference/modern.geno",
+        snp="results/reference/modern.snp",
+        ind="results/reference/modern.ind",
+        par="config/convertf_plink.par"
+    output:
+        bed="results/reference/modern_plink.bed",
+        bim="results/reference/modern_plink.bim",
+        fam="results/reference/modern_plink.fam"
+    log:
+        "logs/convertf_plink.log"
+    shell:
+        """
+        mkdir -p logs
+        convertf -p {input.par} > {log} 2>&1
+        """
+
+rule reference_missingness:
+    input:
+        bed="results/reference/modern_plink.bed",
+        bim="results/reference/modern_plink.bim",
+        fam="results/reference/modern_plink.fam"
+    output:
+        vmiss="results/reference/modern_missingness.vmiss"
+    log:
+        "logs/reference_missingness.log"
+    shell:
+        """
+        plink2 \
+          --bfile results/reference/modern_plink \
+          --missing variant-only \
+          --out results/reference/modern_missingness \
+          > {log} 2>&1
+        """
+
+rule summarize_reference_missingness:
+    input:
+        vmiss="results/reference/modern_missingness.vmiss"
+    output:
+        "reports/reference_missingness_qc.json"
+    shell:
+        """
+        python scripts/summarize_reference_missingness.py \
+            --vmiss {input.vmiss} \
+            --output {output}
+        """
+
+rule filter_reference_missingness:
+    input:
+        bed="results/reference/modern_plink.bed",
+        bim="results/reference/modern_plink.bim",
+        fam="results/reference/modern_plink.fam",
+        qc="reports/reference_missingness_qc.json"
+    output:
+        bed="results/reference/modern_qc.bed",
+        bim="results/reference/modern_qc.bim",
+        fam="results/reference/modern_qc.fam"
+    log:
+        "logs/reference_filter_missingness.log"
+    shell:
+        """
+        plink2 \
+            --bfile results/reference/modern_plink \
+            --geno 0.05 \
+            --make-bed \
+            --out results/reference/modern_qc \
+            > {log} 2>&1
         """

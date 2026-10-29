@@ -1,0 +1,11 @@
+genotypename: results/reference/modern.geno
+snpname: results/reference/modern.snp
+indivname: results/reference/modern.ind
+
+outputformat: PACKEDPED
+genooutfilename: results/reference/modern_plink.bed
+snpoutfilename: results/reference/modern_plink.bim
+indoutfilename: results/reference/modern_plink.fam
+
+outputgroup: NO
+hashcheck: YES
