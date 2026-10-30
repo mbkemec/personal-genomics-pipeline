@@ -49,6 +49,16 @@ rule all:
 	"results/pca/merged.ind",
 	"results/pca/pca.evec",
 	"results/pca/pca.eval",
+	"results/pca/pca_colored.png",
+	"results/pca/pca_zoom.png",
+	"results/pca/pca_population_distances.csv",
+	"results/pca/pca_pc1_pc5.png",
+	"results/pca/pca_pc1_pc5.csv",
+	"results/pca/pca_pc1_pc10.png",
+	"results/pca/pca_pc1_pc10.csv",
+	"results/pca/pca_nearest_individuals_pc2.csv",
+	"results/pca/pca_nearest_individuals_pc5.csv",
+	"results/pca/pca_nearest_individuals_pc10.csv",
 
 rule preprocess:
     input:
@@ -422,3 +432,32 @@ rule run_smartpca:
         """
         smartpca -p {input.par} > {log} 2>&1
         """
+
+rule plot_pca:
+    input:
+        evec="results/pca/pca.evec",
+        metadata="reference/aadr/v66.p1_compatibility_HO.aadr.PUB.anno"
+    output:
+        colored="results/pca/pca_colored.png",
+        zoom="results/pca/pca_zoom.png",
+        distances_2="results/pca/pca_population_distances.csv",
+        plot_5="results/pca/pca_pc1_pc5.png",
+        distances_5="results/pca/pca_pc1_pc5.csv",
+        plot_10="results/pca/pca_pc1_pc10.png",
+        distances_10="results/pca/pca_pc1_pc10.csv",
+        individuals_2="results/pca/pca_nearest_individuals_pc2.csv",
+        individuals_5="results/pca/pca_nearest_individuals_pc5.csv",
+        individuals_10="results/pca/pca_nearest_individuals_pc10.csv"
+    params:
+        output_dir="results/pca",
+        target=config["sample_id"]
+    shell:
+        """
+        python scripts/plot_pca.py \
+            --evec {input.evec} \
+            --metadata {input.metadata} \
+            --output-dir {params.output_dir} \
+            --target {params.target}
+        """
+
+
