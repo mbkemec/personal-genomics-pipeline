@@ -1,0 +1,12 @@
+genotypename: results/pca/merged.geno
+snpname: results/pca/merged.snp
+indivname: results/pca/merged.ind
+
+evecoutname: results/pca/pca.evec
+evaloutname: results/pca/pca.eval
+poplistname: results/pca/reference_populations.txt
+
+numoutevec: 10
+numoutlieriter: 0
+lsqproject: YES
+shrinkmode: YES

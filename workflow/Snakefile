@@ -10,6 +10,8 @@ rule all:
         "results/qc/alleles_1240K.json",
 	"results/harmonized/compatibility_HO_sample_codes.txt",
 	"results/harmonized/1240K_sample_codes.txt",
+	"results/harmonized/compatibility_HO_matched_snps.txt",
+	"results/harmonized/1240K_matched_snps.txt",
 	"results/qc/harmonization_compatibility_HO.json",
 	"results/qc/harmonization_1240K.json",
         "results/reference/modern_samples.txt",
@@ -28,7 +30,25 @@ rule all:
 	"results/reference/modern_qc.bim",
 	"results/reference/modern_qc.fam",
 	"results/reference/modern_ld.prune.in",
-	"results/reference/modern_ld.prune.out"
+	"results/reference/modern_ld.prune.out",
+	"results/reference/shared_snps.txt",
+	"reports/shared_snps_qc.json",
+	"results/reference/shared.bed",
+	"results/reference/shared.bim",
+	"results/reference/shared.fam",
+	"results/reference/shared_ld.prune.in",
+	"results/reference/shared_ld.prune.out",
+	"results/reference/pca_reference.bed",
+	"results/reference/pca_reference.bim",
+	"results/reference/pca_reference.fam",
+	"results/pca/sample.geno",
+	"results/pca/sample.snp",
+	"results/pca/sample.ind",	
+	"results/pca/merged.geno",
+	"results/pca/merged.snp",
+	"results/pca/merged.ind",
+	"results/pca/pca.evec",
+	"results/pca/pca.eval",
 
 rule preprocess:
     input:
@@ -83,11 +103,12 @@ rule harmonize:
         snp="reference/aadr/v66.p1_{panel}.aadr.patch.PUB.snp"
     output:
         codes="results/harmonized/{panel}_sample_codes.txt",
-        qc="results/qc/harmonization_{panel}.json"
+        qc="results/qc/harmonization_{panel}.json",
+	matched="results/harmonized/{panel}_matched_snps.txt"
     shell:
         """
         python scripts/harmonize_genotypes.py \
-            {input.tped} {input.snp} {output.codes} {output.qc}
+            {input.tped} {input.snp} {output.codes} {output.qc} {output.matched}
         """
 
 rule select_modern_samples:
@@ -249,4 +270,155 @@ rule prune_reference_ld:
             --indep-pairwise 200 50 0.2 \
             --out results/reference/modern_ld \
             > {log} 2>&1
+        """
+
+rule select_shared_snps:
+    input:
+        matched="results/harmonized/compatibility_HO_matched_snps.txt",
+        bim="results/reference/modern_qc.bim"
+    output:
+        snps="results/reference/shared_snps.txt",
+        report="reports/shared_snps_qc.json"
+    shell:
+        """
+        python scripts/select_shared_snps.py \
+            --matched {input.matched} \
+            --bim {input.bim} \
+            --output {output.snps} \
+            --report {output.report}
+        """
+
+rule extract_shared_reference:
+    input:
+        bed="results/reference/modern_qc.bed",
+        bim="results/reference/modern_qc.bim",
+        fam="results/reference/modern_qc.fam",
+        snps="results/reference/shared_snps.txt"
+    output:
+        bed="results/reference/shared.bed",
+        bim="results/reference/shared.bim",
+        fam="results/reference/shared.fam"
+    log:
+        "logs/extract_shared_reference.log"
+    shell:
+        """
+        plink2 \
+            --bfile results/reference/modern_qc \
+            --extract {input.snps} \
+            --make-bed \
+            --out results/reference/shared \
+            > {log} 2>&1
+        """
+
+rule prune_shared_ld:
+    input:
+        bed="results/reference/shared.bed",
+        bim="results/reference/shared.bim",
+        fam="results/reference/shared.fam"
+    output:
+        prune_in="results/reference/shared_ld.prune.in",
+        prune_out="results/reference/shared_ld.prune.out"
+    log:
+        "logs/shared_ld_pruning.log"
+    threads: 8
+    shell:
+        """
+        plink2 \
+            --bfile results/reference/shared \
+            --indep-pairwise 200 50 0.2 \
+            --threads {threads} \
+            --out results/reference/shared_ld \
+            > {log} 2>&1
+        """
+rule extract_pca_reference:
+    input:
+        bed="results/reference/shared.bed",
+        bim="results/reference/shared.bim",
+        fam="results/reference/shared.fam",
+        snps="results/reference/shared_ld.prune.in"
+    output:
+        bed="results/reference/pca_reference.bed",
+        bim="results/reference/pca_reference.bim",
+        fam="results/reference/pca_reference.fam"
+    log:
+        "logs/extract_pca_reference.log"
+    shell:
+        """
+        plink2 \
+            --bfile results/reference/shared \
+            --extract {input.snps} \
+            --make-bed \
+            --out results/reference/pca_reference \
+            > {log} 2>&1
+        """
+
+rule prepare_sample_eigenstrat:
+    input:
+        snp="results/reference/modern.snp",
+        codes="results/harmonized/compatibility_HO_sample_codes.txt",
+        selected="results/reference/shared_ld.prune.in"
+    output:
+        geno="results/pca/sample.geno",
+        snp="results/pca/sample.snp",
+        ind="results/pca/sample.ind"
+    params:
+        sample_id=config["sample_id"],
+        sex="M" if config["sex"] == 1 else "F"
+    shell:
+        """
+        python scripts/prepare_sample_eigenstrat.py \
+            --snp {input.snp} \
+            --codes {input.codes} \
+            --selected {input.selected} \
+            --sample-id {params.sample_id} \
+            --sex {params.sex} \
+            --output-prefix results/pca/sample
+        """
+
+rule merge_pca_dataset:
+    input:
+        ref_geno="results/reference/modern.geno",
+        ref_snp="results/reference/modern.snp",
+        ref_ind="results/reference/modern.ind",
+        sample_geno="results/pca/sample.geno",
+        sample_snp="results/pca/sample.snp",
+        sample_ind="results/pca/sample.ind",
+        par="config/mergeit_pca.par"
+    output:
+        geno="results/pca/merged.geno",
+        snp="results/pca/merged.snp",
+        ind="results/pca/merged.ind"
+    log:
+        "logs/mergeit_pca.log"
+    shell:
+        """
+        mergeit -p {input.par} > {log} 2>&1
+        """
+
+rule pca_reference_populations:
+    input:
+        "results/reference/modern.ind"
+    output:
+        "results/pca/reference_populations.txt"
+    shell:
+        r"""
+        awk '{{print $3}}' {input} | sort -u > {output}
+        """
+
+rule run_smartpca:
+    input:
+        geno="results/pca/merged.geno",
+        snp="results/pca/merged.snp",
+        ind="results/pca/merged.ind",
+        pops="results/pca/reference_populations.txt",
+        par="config/smartpca.par"
+    output:
+        evec="results/pca/pca.evec",
+        eval="results/pca/pca.eval"
+    log:
+        "logs/smartpca.log"
+    threads: 8
+    shell:
+        """
+        smartpca -p {input.par} > {log} 2>&1
         """

@@ -1,0 +1,16 @@
+geno1: results/reference/modern.geno
+snp1: results/reference/modern.snp
+ind1: results/reference/modern.ind
+
+geno2: results/pca/sample.geno
+snp2: results/pca/sample.snp
+ind2: results/pca/sample.ind
+
+genooutfilename: results/pca/merged.geno
+snpoutfilename: results/pca/merged.snp
+indoutfilename: results/pca/merged.ind
+
+outputformat: PACKEDANCESTRYMAP
+docheck: YES
+strandcheck: YES
+hashcheck: YES
