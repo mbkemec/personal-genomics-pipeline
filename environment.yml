@@ -8,4 +8,6 @@ dependencies:
   - python=3.11
   - plink2
   - eigensoft=9.0.0
+  - matplotlib
+  - pandas
 prefix: /home/barkinkemec/miniconda3/envs/personal-genomics
